@@ -1,0 +1,8 @@
+!JackRabbit
+
+/ Test JackRabbit program
+
+@Start	mov 	^@Next  ^@Start
+@Next     dat  $100
+
+

@@ -1,0 +1,39 @@
+/ Program tester for bos
+
+!TestProgram
+
+"0"This is a test taunt
+"1"This is another test taunt
+
+@Start
+		mov	1, 1
+		mov	1, 1
+@Number2  mov  1, 1	/This is a test comment
+
+		dat
+		Dat
+
+		ZZZ
+
+		cmp
+		je
+		jb
+		ja
+		jmp
+		inc
+		dec
+		add
+		SUB
+		LOP
+		rnd
+		wt
+		tmr
+		hlt
+
+		dddd
+		d
+
+
+
+@Data1	#1
+@Data2    #2

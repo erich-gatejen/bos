@@ -1,0 +1,25 @@
+!WaitImp
+
+/ This program will wait for an intrusion, then imp out
+
+/ Taunts
+"1"Ok, wait.
+"2"Time to kill an imp!
+
+   mov A 	-40
+
+   wt  -45 @Shoot   [1
+   hlt
+
+/ Kill the imp
+@Shoot   mov  ^A  ^@Bomb  [2
+	    mov  ^A  ^@Bomb
+	    mov  ^A  ^@Bomb
+	    mov  ^A  ^@Bomb
+	    mov  ^A  ^@Bomb
+	    mov  ^A  ^@Bomb
+	    mov  ^A  ^@Bomb
+
+/ Data area
+@Bomb    dat  $0
+

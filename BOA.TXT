@@ -1,0 +1,887 @@
+
+
+
+
+
+
+
+
+
+
+
+
+                     Battle Operating system Assembler
+
+                                    BOA
+
+                               Version 1.0 
+
+
+
+                        Software and Documentation
+                   Copyright (C) 1993  Erich P. Gatejen          
+                            All Rights Reserved
+               
+
+               Use and distribution of this package allowed
+               only in accordance with the license agreement     
+               as described in this document.          
+
+
+
+
+
+
+
+
+
+TABLE OF CONTENTS
+
+SECTION 1 - Legal Information                               
+1.1  License Agreement                                      1
+
+SECTION 2 - Introduction
+2.1  What is the Battle Operating System (BOS)?             2
+2.2  What is the Battle Operating system Assembler          2              
+
+SECTION 3 - Using BOA
+3.1  A Program File                                         3
+3.2  Assembling                                             3
+
+SECTION 4 - Writing Programs
+4.1  The Rules of BOS and WAR-Code                          4
+4.2  BOA Programming                                        5
+4.3  First Program, an Example                              9
+
+SECTION 5 - WAR-Code, the instruction set                  13
+
+SECTION 6 - BOS Extension INSTRUCTIONS                     18
+
+SECTION 7 - Battle Tactics                                 20              
+          
+    
+
+                    
+Battle Operating system Assembler                                     Page 1
+
+SECTION 1  -  LEGAL INFORMATION
+
+     1.1  LICENSE AGREEMENT
+     The Battle Operating system Assembler (BOA) is a portion of the Battle
+Operating System (BOS) package.  Its use and distribution may only be in
+accordance with the License Agreement as stated within the BOS documentation.
+
+Battle Operating system Assembler                                     Page 2 
+
+SECTION 2 - INTRODUCTION
+
+     2.1  WHAT IS THE BATTLE OPERATING SYSTEM?
+     The Battle Operating System, from here on to be referred to as BOS, is
+an arena for competing "programs" to fight.  A program is written in a unique
+machine instruction set called WAR-Code, then loaded into BOS and executed. 
+The programs, if written correctly, will then seek to kill all other running
+programs and gobble up as much system memory (Core) as possible.      
+     BOS is a multi-processing system, in that all running programs will
+execute concurrently and the command line for entering BOS system commands
+will always be available.  
+
+     2.2  WHAT IS THE BATTLE OPERATING SYSTEM ASSEMBLER?
+     Yes, the programs are sets of 'machine instructions', but don't panic. 
+You won't have to be writing 'machine code'.  This is where the Battle
+Operating system Assembler (BOA) comes in.  BOA makes creating WAR-Code
+programs easy  (The difficult part is creating a winning program).  A program
+can be written with any text editor and assembled using BOA; no linker or any
+other annoyance is necessary.
+   
+Battle Operating system Assembler                                     Page 3
+
+SECTION 3 - USING BOA
+
+     3.1  A PROGRAM FILE
+     There are few restrictions on a program code file.  First, it has to be 
+a 'text' file.  In other words, it must be standard ASCII with no fancy codes
+as used by word-processors for formatting.  EDIT supplied with DOS 5.0 or the
+editor of one of Borland's compilers would do just fine, but if you have
+another favorite go with it.  Second, the file must have an extension of
+'.BOA'.
+
+     3.2  ASSEMBLING
+     Once you have written a program, then you assemble it using BOA.  At the
+DOS prompt, enter 'BOA [filename.BOA] [listfile.LST]'.  [filename.BOA] is the
+name of your program file.  [listfile.LST] is an optional list file, but if
+you use it, all errors will be written to a list file instead of the screen. 
+Also, the list file will contain information for successfully assembled
+programs.  Remember, for both the [filename.BOA] and [listfile.LST] the file
+extensions .BOA and .LST are NOT optional!  
+     An example run of BOA might look like this: BOA KILLER.BOA KILLER.LST
+This will assemble the program in the text file 'KILLER.BOA' and write any
+information concerning the assembly to a text file 'KILLER.LST'.  
+     A list file can be viewed with the DOS command 'type' or with the same
+editor you used to create the program file.
+     If an assembly of a program is successful, BOA will create a binary file
+that can be loaded and used be BOS.  The file will have the extension '.BOS'.
+
+Battle Operating system Assembler                                     Page 4
+
+SECTION 4 - WRITING PROGRAMS
+
+     4.1  THE RULES OF BOS AND WAR-Code
+
+     4.1.1  THE CORE
+     The 'CORE' is the memory of BOS; it is where all programs are loaded and
+executed.  Every single piece of memory in the core has a unique 'address'.
+There are two very important aspects about the core.  First, only BOS and
+registers care about absolute addresses; to a battle program everything is
+relative!  For example, a WAR-Code instruction will not address a memory at
+location '100', but rather a memory at '100 locations away'.  A location
+'100' is a specific, never changing address, and that is considered an
+absolute address.  However, '100 locations away' matters where it is in the
+first place.  Since the WAR-Code instruction can be anywhere in memory, the
+'100' locations away can be anywhere but always a '100' away.  That is
+considered a relative address or 'offset'.  
+     Now that you have that, let me through a wrench in the works.  Registers
+(there are 3 available, A,B, and C) behave a little differently.  When you
+load a register with an address it becomes absolute.  A register always
+points to the same place, regardless of where the instruction using the
+register is.
+     The core itself is circular.  The next address after the 'highest'
+address is not Neverland (there are no GPFs in BOS) but rather the 'lowest'
+address.  There is no 'out-of-bounds' in BOS, everything just wraps around.
+Also, remember that the size of the core is determined when BOS is run, so
+don't create a program that is dependant upon a specific core size in order
+to work.       
+
+     4.1.2  PROGRAM EXECUTION
+     While it may be 'your' programs turn to execute, that does not mean it
+will execute only 'your' code;  BOS will try to execute whatever 'your'
+program's instruction pointer is pointing at.  What does this mean?  Should
+your program jump into the middle of someone else's code, BOS will run that
+code as if were your own.  YOUR PROGRAM CAN RUN OTHER PROGRAMS' CODE, and
+some effective programming strategies can take advantage of this.  
+     OK, so now I come to the most important concept of BOS.  The point of a
+writing a BOS program is to kill opposing programs!  So, you may be asking
+yourself, what kills a program?  Quite simple, a program dies when it tries
+to execute an invalid instruction OR data; the later being the most common
+form of demise.  Now, a program dying from executing an invalid instruction
+is probably the programmers fault, so to avoid this be careful in your
+coding.  A program dying from executing data may be the programmers fault,
+but also could be the result of an attack!  SO, to kill another program try
+to get it to execute data.         
+
+
+
+Battle Operating system Assembler                                     Page 5
+
+     4.1.3  THE WAR-Code INSTRUCTIONS
+     There are 16 instructions in the WAR-Code instruction set.  All take
+only one clock cycle to execute and occupy only one address of memory.  There
+are several different addressing modes available for most of the 
+instructions.  Note that one instruction, the 'DAT', isn't executable; it is
+the marker for data and executing it will cause a program to die.  
+
+     4.1.4.1  INSTRUCTION OPERANDS
+     With the instruction 'mov  A  $5' there are two operands.  The "First"
+operand is the one closest to the instruction mnemonic 'mov'.  The "Second"
+operand is the one furthest the mnemonic.  Note that different instructions
+have different number of mnemonics.
+
+     4.1.4.2  THE REGISTERS
+     There are three registers available to any program; they are 'A', 'B',
+and 'C'.  A register can hold data, an address, or an instruction, and it 
+will treat them all the same.  For example, you could load data into
+a register and then use it as an address; no problem.  You could load an
+instruction into a register and then use it as an address; this may be a
+problem but BOS won't care, since it will execute such an instruction anyway.
+
+     4.1.4.3  THE RESULT HOLD REGISTER (RHR)
+     The result of the last mathematical operation is held in the 'RESULT
+HOLD REGISTER'.  This register is not directly accessible to the program. 
+However, it is used by the three branch instructions.  'je'(jump if equal)
+will branch(jump to the first operand's offset) if the RHR is 0.  'jb'(jump
+if below) will branch if the RHR is negative.  'ja'(jump if above) will
+branch if the RHR is positive, non-zero.  All mathematical instructions,
+including 'cmp'(compare first operand to the second operand).  
+
+     4.2  BOA PROGRAMMING
+
+     4.2.1  PROGRAM NAME DECLARATION
+     Once, and only once, in a program you must declare the program's name.
+This name is used by BOS when the program is loaded.  The following line
+shows how to declare the name:
+     !A_Program
+The '!' indicates a program name declaration.  The text after the exclamation
+will be the program's name.  Take note that BOS will only use the first 8
+characters of a program name; however, there is no error to have one long
+in a program.
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 6
+
+     4.2.2  COMMENTS
+     You can comment any line of code in a program.  The following line shows
+an example of a comment:
+     mov  A  B   / This is a comment
+The '/' begins a comment and everything remaining on the line to its right
+will be ignored.
+
+     4.2.3  TAUNTS
+     Taunts allow programs to send messages to the console.  BOS adds a
+timestamp and program name to the messages and displays them on the console.
+A program can have up to 8 taunts that is can send.
+( I called them taunts because I imagined their most common use would
+be to send inflammatory messages to an opposing program's owner/author. 
+Perhaps a program that had located its enemy would let the enemy's owner know
+that it was about to snuff it out; an opportunity for humor, sarcasm, spite,
+or whatever.  However, while developing BOS, I discovered they were an
+invaluable BOA program debugging tool. )
+
+     4.2.3.1  DEFINING TAUNTS
+     All taunts a program uses must be defined.  The following is an example
+of how to define a taunt:    
+     "0"You program is MINE!!! HAHA!!!
+The taunt number, 0 through 7, is enclosed in '"' characters and the text of
+the taunt follows.
+
+     4.2.3.2  TAUNT IMBEDS
+     For a taunt to be sent to the console, it must be associated with a    
+WAR-Code instruction.  This association is called a 'taunt imbed'.  Every
+time an instruction with a taunt imbed executes the taunt will be sent to the
+console.  The following is an example of an instruction with a taunt imbed.
+     mov  A  $-10    [0
+For this instruction, every time it executes taunt 0 will be sent to the
+console.  The actual imbed is the '[' character followed by the taunt number
+(0 to 7).  
+     A taunt imbed can ONLY be on a line with an instruction as one can only
+be associated with instructions.  The same taunt can be imbed on any number
+of instructions.  Be careful in the use of taunts; it isn't a good idea to
+imbed a taunt somewhere within a loop as the taunt will overrun the screen
+when the program executes.     
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 7
+
+     4.2.5  LITERAL OFFSET
+     A literal offset is a hard-coded offset; the following is an example
+using a jump instruction:
+     jmp  -5
+The '-5' is a literal offset.  This example says, "minus five address from
+here."  The 'jmp -5' will cause a program to jump back 5 addresses.
+A literal address starts with a '-' or '+' character for whether it is a
+negative or positive offset respectively.  The offset value, 5 in this
+example, is any integer value under 32000.  
+Note that a literal offset of 0 is expressed '+0'.
+
+     4.2.6  LITERAL VALUE
+     A literal value is an immediate value; it's basically just a data value
+used by an instruction.  The following is an example of how literal values
+are used:
+     mov  A   $-5
+The '$' indicates the following value, here a -5, is a literal value.  The
+value is any number between -32000 and 32000.  Note that where literal
+offsets require a '+' for positive numbers, literal values do not; $10 is
+positive ten, for example.
+ 
+     4.2.7  LABELS
+     Any line with an instruction or data can be labeled.  The following code
+gives an example of how labels can be used:
+     @A_Loop   mov  ^A  $5
+               inc  A
+               jmp  @A_Loop
+The first line labels a move instruction '@A_Loop'.  All labels must begin
+with the '@' character and be followed by the label text.  Only the first 8
+characters of a label are significant; the labels '@Hello_World' and 
+'@Hello_William' look like the same thing to BOA.  
+Without using a label, the third instruction would have to be 'jmp -2' for
+the same effect of jumping back to the 'mov' instruction.  However, since the 
+'mov' instruction was labeled '@A_Loop', the 'jmp' can use that label
+instead.  Labels figure out offsets for you (remember, everything is
+relative) and relieve you of having to count instructions and use literal
+offset.  A label can be substituted anywhere you can put a literal offset.  
+      
+
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 8
+
+     4.2.6  CONSTANTS
+     Suppose you would like to label an offset that is not within your
+program code; this can be done with a constant.  A constant is a label with 
+a hard-coded offset and that offset can be any literal offset value.  So you
+might ask, "Why bother with a constant?  Just use a literal offset."
+First, constants add to program readability and maintainability.  Second,
+literal offsets are relative to the current instruction; this means you will
+be constantly recalculating an offset to get to the same place.  Constants
+are always, no matter what instruction they are used in, relative to the
+beginning of the program and will always address the same place.  BOA takes
+care of all the offset calculations for you.  The following is an example of
+how a constant is defined:
+     @BackTen   =  -10
+The '@BackTen' is just like a label.  The '=' character indicates that the
+label is a constant.  The '-10' is the literal offset.  '@BackTen' will
+always be minus ten addresses (-10 literal offset) from the START of your
+program.
+
+     4.2.7  OFFSET DE-REFERENCING
+     This is a vital concept in understanding WAR-Code programming.  So far
+we have seen literal offsets, labels, and constants; they all produce some
+address into the core.  Well, a program can play with addresses all day but
+the point of programming is to change the contents of such address.  This is
+what de-referencing does; it doesn't produce an offset, but rather it allows
+access to the contents at an offset.  The following are examples and
+explanations of different dereferencing:
+     @BackTen    :  from 4.2.6, a constant that offsets -10 from the start of
+                    the program.
+    ^@BackTen    :  allows access to the data at that offset
+
+     -10         :  a literal offset, minus 10 address from 'here'
+    ^-10         :  access the contents at minus 10 address from 'here'
+The '^' is the de-referencing character and it can be applied to labels,
+constants, and literal offsets.
+
+     4.2.8  REGISTER DE-REFERENCING
+     Yes, registers can be de-referenced but they behave differently.  Where
+the label '@BackTen' is an offset, 'A' is not.  Access to the contents of a
+register is direct; 'A' alone, not '^A', lets you change the contents of the
+A register.  So what does register de-referencing do?  Well, '^A' will create
+an offset out of whatever value is in the A register and then use that offset
+as it would a label's offset for de-referencing.  It is a form of indexing. 
+WARNING!  Take note of the words "whatever value" in the above sentence!  If
+a register is loaded with an instruction, de-referencing will still work;
+just expect some wild-assed results.
+Battle Operating system Assembler                                     Page 9
+
+     4.3  FIRST PROGRAM, AN EXAMPLE
+     The best way to learn how to write a WAR-Code program is to see and
+understand how an already written one works.  The following program will give
+you an idea of the components of a WAR-Code program.  Explanations of each
+significant line follow the code.
+
+/ Sample program Simple1, it uses so of the simple feature of WAR-Code   #1
+/ and BOA.  However, the program itself does not work very well in a
+/ a battle.
+!Simple1                                                            #2
+
+/ Define the taunts
+"0"I'll crush your WAR-Code bones                                   #3     
+"1"OK, I'll try something different
+
+/ Define constants
+@BackFive  = -5                                                     #4
+
+/ Program code      
+@Start         mov   A    @BackFive     [0    / Load reg A          #5
+               mov   C   ^@LoopTimes          / Load reg C          #6
+@Launch        mov  ^A   ^@Bomb         / Launch a bomb             #7
+               sub   A   $5             / Point 5 back              #8 
+               lop  @Launch             / While C > 0, jump back    #9
+
+               add   ^@LoopTimes   $10  [1   / Add 10 to LoopTimes  #10 
+               mov   A    +100          / Point A to 100 away       #11
+               mov   C   ^@LoopTimes    / Set C to number of loops  
+@RollingBomb   mov  ^A   ^@Bomb         / Launch a bomb
+               inc   A                  / Point A to next spot      #12
+               lop   @RollingBomb                 
+
+               mov   C     ^@LoopTimes  / Set number of loops
+@RollBackwards mov  ^A     ^@Bomb  
+               dec   A                  / Point to previous spot    #13
+               lop   @RollingBomb    
+               jmp   @Start        / Go back and do it all again    #14
+
+@LoopTimes     dat   $15           / Data                           #15    
+@Bomb          dat   $0            / Data
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 10
+
+     EXPLANATIONS
+
+     #1  :  The slash '/' starts a comment.  Any text to the left of a '/'
+            is ignored by BOA.
+ 
+     #2  :  Once, and only once, in a program you must declare the name
+            of the program.  This name will be used by BOS to identify the
+            program after it is loaded into the core.  To declare a program's 
+            name simply put a '!' then the name you wish to use.  This
+            program declares the name 'Simple1'.
+
+     #3  :  This line defines a taunt.  A taunt is a way to send a message  
+            to the screen while your program runs.  After you define a taunt, 
+            you can associate that taunt with an instruction such that every
+            time that instruction executes the taunt will be displayed.     
+            You can have up to eight taunts numbered 0 through 7.  To define
+            a taunt, put a '"' character, the number of the taunt (remember, 
+            0 through 7), another '"', and finally what you want the taunt to
+            say.  The taunt on this line defines 0 as "I'll crush your WAR-
+            Code bones".  
+
+     #4  :  This line defines a constant.  Well, constant is a bad name for 
+            it.  It is actually a label, pointing -5 relative to the start of 
+            the program.  Should you wish to label a point that is not within
+            your code, this is how you do it.  However, remember two        
+            important things;  it is a relative offset not an absolute      
+            address, and second, all constants are relative to the START of 
+            your program!  They are not relative to where you use them.     
+                     
+     #5  :  This is the first line of real code.  Be careful, BOS starts
+            running a program here and if it is data instead of an          
+            instruction your program will die.  
+            The line starts with defining the label '@Start'.  All labels   
+            begin with the '@' character.    
+            Next there is the WAR-Code instruction 'mov'.  This instruction
+            is used to move stuff around within the core.  Note that you are 
+            not just limited to moving data around, if you want to move code 
+            you can (Yes, your program can move itself to somewhere else in
+            the core).  'mov' has two operands; the first is where you want 
+            to move to, and the second is what you want to move.  In this   
+            line, the program is moving the address of '@BackFive' into the
+            'A' register (Remember, the address of '@BackFive' is -5        
+            locations from the start of the program).      
+            Lastly, the '[0' is a taunt imbed.  Every time this instruction
+            is executed, taunt 0 will be displayed on the screen.
+
+
+Battle Operating system Assembler                                     Page 11
+
+     #6  :  This is another 'mov' instruction.  However, instead of moving 
+            an address into a register, as we did in the last line, it is   
+            moving the contents of a address.  @LoopTimes is a label for a
+            data at the end of the program.  If the mov instruction was
+            instead 'mov  C  @LoopTimes', the ADDRESS of @LoopTimes would be
+            moved into the C register.  However, the instruction as it is, 
+            'mov  C  ^@LoopTimes', moves the actual data at '@LoopTimes' into
+            the C register.  In this case, since the data at '@LoopTimes' is
+            15, this instruction will move the value 15 into the C register.
+            What makes this form of the 'mov' instruction different than that
+            in the previous line is the '^' character in front of the second 
+            operand.  '^' makes an address into a pointer; it is an         
+            de-referencing operator.
+
+     #7  :  This line begins with defining the label '@Launch'.  As always, 
+            labels are denoted with the '@' character.
+            For this move, the source is what '@Bomb' is pointing to and the
+            destination is what register 'A' is pointing to.  Just as '^'
+            de-references an offset (in this case '@Bomb'), it de-references 
+            a register.        
+      
+     #8  :  This line uses the subtract instruction.  The value 5 (positive) 
+            is subtracted by the value in the 'A' register.  The result     
+            remains in the 'A' register.  '$5' is a literal value, which    
+            is denoted by the '$' character. 
+
+     #9  :  This line uses the looping instruction.  As long as the 'C'     
+            register (and only the 'C' register) is greater than zero, the
+            program will jump the location of the first operand.  In this   
+            case, as long as the 'C' register is greater than zero, the     
+            program will jump to '@Launch'.  '@Launch' was defined on the 
+            #7 line of the program.
+
+     #10 :  This line uses the addition instruction.  The value 10, a       
+            literal value, will be added to whatever is at the location     
+            that '@LoopTimes' points to (remember, '@LoopTimes' is an       
+            address, while '^@LoopTimes' is what is at that address).  The
+            result will remain at the location '@LoopTimes' points to.
+            There is also a taunt imbed for taunt number one. 
+
+     #11 :  This is another 'mov' instruction.  In this case, '+100' is
+            a core offset and that address is being moved into the 'A'      
+            register.  However, this offset is relative to the address
+            of this line of code.  The actual address placed into 'A' will
+            be the address of this line plus 100.  Everything is relative.  
+
+
+Battle Operating system Assembler                                     Page 12
+
+     #12 :  This line uses the increment instruction.  One (1) is added to  
+            the contents of the first operand.  In this case, one is added to
+            the 'A' register.
+
+     #13 :  This line uses the decrement instruction.  One (1) is subtracted 
+            from the contents of the first operand.       
+
+     #14 :  This line uses the jump instruction.  The program will jump to
+            the offset in the first operand.
+
+     #15 :  This line defines a data.  An offset, labeled '@LoopTimes' will
+            contain the literal value positive 15.  This data will be part of 
+            the program and will be loaded with the code into BOS.  Remember,
+            both data and instructions occupy only one address of core
+            memory.
+Battle Operating system Assembler                                     Page 13
+
+SECTION 5 - WAR-Code INSTRUCTIONS
+
+     5.1  DAT  -  The Data "Instruction"  
+     The Data "Instruction" is a unique case.  Remember, if a BOS program
+tries to execute data, it will die.  However, the data "instruction" is a way
+to imbed data in a program for its use.
+'DAT' has only one operand; it is the value of the data.  It may be any valid
+literal value.
+     
+     Example #1 :   DAT  $10
+     This data location will have the value 10.
+
+
+     5.2  MOV  -  Moving stuff (data or instructions)
+     This is the instruction used to move stuff around.  This instruction has
+two operands.  The first is the destination and the second is the source. 
+The source can be any valid expression: literal value, literal offset,
+constant, label, register, or the value at any offset (a de-referenced offset
+or register).  The destination is any de-referenced offset or register, or
+into a register itself.
+
+     Example #1 :   MOV  A   $-10
+     The value -10 is moved into the A register
+
+     Example #2 :   MOV  ^A  $-10
+     The value -10 is move into the location the A register points to.  The
+'^' before the A tells BOA to move the -10 not into register, but rather to
+offset the register holds.
+
+     Example #3 :   MOV  ^@Hold  @There
+     The offset of '@There' is moved into where the offset of '@Hold' is.   
+ 
+     Example #4 :   MOV  ^@Hold  ^@There
+     The value at the offset of '@There' is moved to where the offset of
+'@Hold' is.  Note, the would value doesn't mean only data values can be
+moved; in fact, anything can be moved.
+          
+            
+
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 14
+
+     5.3  CMP  -  Compare things.
+     This instruction is used to compare items; it will 'compare' the second
+operand to the first.  The second operand will be subtracted from the first,
+and the result will be put in the RESULT HOLD REGISTER (RHR).  Neither of the
+operands will be modified.  The first operand can be any valid expression;
+the second operand must be either a register (not de-referenced), a literal
+value, or literal offset.  See the next three commands on how to use the RHR.
+
+     Example #1 :   CMP  A  $-10
+     This will compare the literal value -10 with the contents of the A
+register.
+
+
+     5.4  JE  -  Jump when equal (or RHR is zero).
+     If the value of the RHR is 0, then it will jump to the location in the
+first, and only, operand.  Since the compare instruction places its result
+into the RHR, if the two operands of a compare are equal the result will be
+0; then a JE will take the jump.  Other mathematical instructions place their
+result into the RHR, so JE can be used to determine if the operation resulted
+in a 0.
+
+     Example #1 :   MOV  A  $10
+                    CMP  A  $10
+                    JE   +100
+     The A register is loaded with the literal value 10.  The register is
+then compared with the literal value 10.  Obviously they are equal; the 10 in
+the A register is subtracted by the literal value 10 and the result is 0. 
+The JE sees the 0 in RHR and jumps +100 offsets.
+
+     Example #2 :   MOV  A  $10
+                    CMP  A  $8
+                    JE   +100
+     The A register is loaded with the literal value 10.  The register is
+then compared with the literal value 8.  Obviously they are not equal; the 10
+in the A register is subtracted by the literal value 8 and the result is 2. 
+The JE sees the 2 in RHR and since it is not 0 (no, duh!) it DOES NOT jump
++100 offsets.
+         
+
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 15
+
+     5.5  JB  -  Jump when below (or RHR is less than zero).
+     If the value of the RHR is less than 0, then it will jump to the
+location in the first, and only, operand.  Since the compare instruction
+places its result into the RHR, if the second operand is greater than the
+first operand the result will be less than 0; then a JB will take the jump. 
+Other mathematical instructions place their result into the RHR, so JB can be
+used to determine if the operation resulted in a negative number.
+
+     Example #1 :   MOV  A  $10
+                    CMP  A  $20
+                    JB   +100
+     The A register is loaded with the literal value 10.  The register is
+then compared with the literal value 20.  Obviously 10 is less that 20; the
+10 in the A register is subtracted by the literal value 20 and the result is
+-10.  The JB sees the negative value in RHR and jumps +100 offsets.
+
+     Example #2 :   MOV  A  $10
+                    CMP  A  $5
+                    JE   +100
+     The A register is loaded with the literal value 10.  The register is
+then compared with the literal value 5.  Obviously 10 is greater than 5; the
+5 in the A register is subtracted by the literal value 5 and the result is 5. 
+The JE sees the 5 in RHR and since it is not negative (no, dah!) it DOES NOT
+jump +100 offsets.
+  
+
+     5.6  JA  -  Jump when above (or RHR is greater than zero).
+     This instruction is the opposite of JA.  If the value of the RHR is
+greater than 0, then it will jump to the location in the first, and only,
+operand.  Since the compare instruction places its result into the RHR, if
+the second operand is less than the first operand the result will be greater
+than 0; then a JA will take the jump.  Other mathematical instructions place
+their result into the RHR, so JA can be used to determine if the operation
+resulted in a negative number.
+
+     5.7  JMP  -  Jump (no questions asked).
+     This is an unconditional jump instruction.  The program will jump to the
+offset offered by the first, and only, operand.
+
+     Example #1 :   JMP +100
+     Jump forward 100 places.
+
+     Example #2 :   JMP  @There
+     Jump to the offset of '@There'
+
+
+
+Battle Operating system Assembler                                     Page 16
+
+     5.8  INC  -  Increment     
+     This is the increment instruction.  It will increment (add one) the
+value offered by the first, and only, operand.  The operand must be a de-
+referenced offset (including register) or a register.  The result will be put
+in the RHR.
+
+     Example #1 :   INC  A
+     This will increment the value of the A register.
+
+     Example #2 :   INC  ^@A_Data
+     This will increment the value at the offset '@A_Data'.
+
+
+     5.9  DEC  -  Decrement     
+     This is the decrement instruction.  It will decrement (subtract one) the
+value offered by the first, and only, operand.  The operand must be a de-
+referenced offset (including register) or a register.  The result will be put
+in the RHR.
+
+     Example #1 :   DEC  A
+     This will decrement the value of the A register.
+
+     Example #2 :   DEC  ^@A_Data
+     This will decrement the value at the offset '@A_Data'.
+
+
+     5.10  ADD  -  Add
+     This instruction will add the value of the second operand to the first
+operand; the result will remain in the first operand (or rather what it
+references) and also be put into the RHR.  The second operand can be any
+valid expression.  The first operand must be a de-referenced offset
+(including register) or a register.
+
+      Example #1 :   ADD  A  $10
+      The value 10 will be added to whatever is in the A register. 
+
+      Example #2 :   ADD  ^A  ^@SomeData
+      The value at the offset of '@SomeData' will be added to the value at
+the offset in the 'A' register.  
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 17
+
+     5.10  SUB  -  Subtract
+     This instruction will subtract the value of the second operand to the
+first operand; the result will remain in the first operand (or rather what it
+references) and also be put into the RHR.  The second operand can be any
+valid expression.  The first operand must be a de-referenced offset
+(including register) or a register.  
+
+  
+     5.11  LOP  -  Loop instruction
+     This instruction assists in looping.  It will first decrement the value
+in the 'C' register.  Then, if the 'C' register is GREATER than 0, it will
+jump to the offset presented by the first, and only, operand.  The first
+operand my be any valid expression.
+
+     Example #1 :         MOV  C  $10
+                  @DOINC  INC  A
+                          LOP  @DOINC
+     First, the 'C' register is loaded with the value 10.  The line labeled
+'@DOINC' will increment the 'A' register (this increment is insignificant to
+the looping mechanism, it is just here for this example).  The LOP
+instruction will jump back to '@DOING' while the 'C' register still is
+greater than 0.  Remember, LOP decrements 'C' before it checks if 'C' is
+greater than 0.   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 18
+
+SECTION 6 - BOS Extension INSTRUCTIONS
+
+     6.1  WHAT ARE THEY?
+     The first twelve instructions are WAR-Code; they are simple machine
+instructions.  BOS Extension instructions are those that have access to
+special features of BOS.  I put them in to mix things up a bit.
+
+     6.2  RND  -  Random Number generator.
+     This instruction will generate a random number that is a valid core
+address.  The value will be put into the de-referenced offset or register
+offered in the first, and only, operand.
+
+     Example #1  :   RND  A
+     A random number will be placed into the 'A' register.
+
+     Example #2  :   RND  ^-10
+     A random number will be placed at the offset -10 from this instruction.
+
+     Example #3  :   RND  ^@ANUMBER
+     A random number will be placed at the offset of '@ANUMBER'.
+
+
+     6.3  WT  -  Wait for trespass.          
+     First, this wait command DOESN'T stop the execution of the program.  In
+essence it places a guard.  The first operand is the offset to place this
+guard.  Should ANY program access that offset, BOS will interrupt this
+program and JUMPS to the offset offered by the second operand.  The first and
+second operands can be any valid expression that yields an offset.  Once
+placed, a wait cannot be cleared until it is triggered; then it is removed
+automatically.  Only one wait can be placed at a time.          
+
+     Example #1 :  WT  -100  @DOSTUFF
+     This will place a wait (guard) at -100 offset.  Should any program
+access -100 offset, this program will (with the help of BOS) automatically
+jump to '@DOSTUFF'
+         
+
+     6.4  HLT  -  Halt execution.  
+     This instruction will halt the execution of the program.  However, waits
+and timers will still be active; so should either trip, program execution
+will resume.  If a program executes this instruction without a timer or wait
+active it is effectively held forever and BOS will kill it.  The HLT
+instruction has no operands.
+
+
+
+
+Battle Operating system Assembler                                     Page 19
+
+     6.5  TMR  -  Set a Timer
+     This instruction will set a timer.  The length of the timer is the first
+operand; any valid expression will do, however the value must be positive. 
+After a timer is set, BOS will decrement the timer during each execution
+cycle.  When the timer reaches 0, BOS interrupts the program and JUMPS it to
+the addresses offered in the second operand.  This instruction does not stop
+execution of a program; after a timer is set, the program will execute
+normally until the timer hits zero.  The second operand may be any valid
+expression that offers an offset.         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Battle Operating system Assembler                                     Page 20
+
+SECTION 7 - Battle Tactics
+
+     7.1  Stay Focused
+     Remember, the only good program is a program that wins.  Keep to the
+basics; try to kill the opponent using a simple a logic as possible.  All it
+takes to win is to get the other guys and gals to execute data.  
+
+     7.2  The Infamous Jack-Rabbit
+     Oddly enough, the smallest possible battle-program complicates battle
+tactics the worst.  The Jack-Rabbit (also called Imp for any COREWAR players)
+is small(only one line) and fast(how slow can a one-liner be?).  The
+following is its code :
+                         MOV  ^+1  ^+0
+It keeps copying itself to the next address, so when it executes the next
+instruction it has moved itself there.  It just keeps hopping, at break-neck
+speed, all the way through the core.  However, since it only moves a valid
+instruction, it will never score a 'kill'.  At best, it will cause a program
+to execute one of its trail of moves and make it a Jack-Rabbit too.  Yup, a
+battle can degrade into a mass rabbit race with no possible winner.
+Anyway, the WT instruction was designed to help diminish the impact of the
+Jack-Rabbit.  The best way to kill this rodent is to change its just placed
+'MOV' into a data before it has a chance to run again. 
+
+     7.3  The BOMB
+     This is a simple enough concept.  To kill a program, make it execute
+data.  SO BOMB IT.  If you move a data into the middle of a program, it will
+execute it and die.  GOT IT, GOOD....
+  
+     7.4  Wrack the brain
+     Look at and modify the examples included on disk; they are all commented
+to explain exactly what they do.  Play around and an idea will come.  Most of
+all, have FUN.....  
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,16 @@
+!Timeit
+
+"0"The timer is set
+"1"Time to imp out
+
+
+/ This program test the timer instruction
+/ Imp out after 200 cycles
+
+   tmr   $100  @Go
+   hlt				[0
+
+@Go     mov	A	B    [1
+@Imp    mov    @Next	@Imp
+@Next   dat    $100
+

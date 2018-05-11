@@ -1,0 +1,23 @@
+!Runner
+
+/ This is a test program
+
+/ Taunt area
+"1"Eat me
+"3"Blow me
+
+
+/ Program area
+@Start    mov	A 	   @Data	[1
+		add	A       $100
+		mov	@Data   A      [3
+		mov	^A	   $0
+		jmp	@Start         
+
+/ Data area
+@Data	dat	$10000         
+
+	#100
+	#-210
+	#10
+

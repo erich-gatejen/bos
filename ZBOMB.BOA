@@ -1,0 +1,19 @@
+!ZBomb
+
+/ This is the zero-bomb program
+
+/ Taunt area
+"1"Here I go
+
+/ Label assignments
+@Start  =  +100				    / Start shooting 100 from here	
+
+/ Program area
+		mov	A       @Start
+@Loop 	mov	^A	   ^@Bomb          / Lob the bomb
+		add  A       $3              / Shoot 3 away
+		jmp	@Loop
+
+/ Data area
+@Bomb	dat	$0  
+
